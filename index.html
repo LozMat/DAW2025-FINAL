@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>💣 Buscaminas - DAW2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h1>💣 Buscaminas - DAW2025</h1>
+
+  <div id="controls">
+    <label for="dificultad">Dificultad:</label>
+    <select id="dificultad" onchange="cambiarDificultad()">
+      <option value="facil">Fácil</option>
+      <option value="medio">Medio</option>
+      <option value="dificil">Difícil</option>
+    </select>
+
+    <button onclick="resetGame()">🔄 Reiniciar</button>
+    <button onclick="location.href='ranking.html'">🏆 Ver Ranking</button>
+    <button onclick="toggleTheme()">🌓 Tema</button>
+  </div>
+
+  <div id="status">
+    <span id="timer">Tiempo: 0s</span> |
+    <span id="minas-restantes">Minas restantes: 10</span>
+  </div>
+
+  <div id="message"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
