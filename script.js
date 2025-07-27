@@ -1,256 +1,173 @@
-'use strict';
+// script.js
+"use strict";
 
-// ============ GLOBAL VARIABLES ============
-var rows = 8;
-var cols = 8;
-var totalMines = 10;
-var board = [];
-var flagsPlaced = 0;
-var remainingMines = totalMines;
-var safeCellsLeft;
-var timer = null;
-var secondsPassed = 0;
+var ROWS = 8;
+var COLS = 8;
+var MINES = 10;
+
+var grid = document.getElementById('grid');
+var cells = [];
+var mineLocations = [];
+var revealedCells = 0;
 var gameOver = false;
-var firstClickDone = false;
-var playerName = "";
+var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav.mp3');
+var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav.mp3');
+var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav.mp3');
+var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav.mp3');
 
-// ============ DOM ELEMENTS ============
-var boardContainer = document.getElementById("board");
-var minesCounter = document.getElementById("mines-counter");
-var stopwatch = document.getElementById("stopwatch");
-var messageModal = document.getElementById("message-modal");
-var modalContent = document.getElementById("modal-content");
-var restartButton = document.getElementById("btn-restart");
+function initializeGrid() {
+  grid.innerHTML = "";
+  cells = [];
+  revealedCells = 0;
+  mineLocations = [];
+  gameOver = false;
+  document.getElementById("message").textContent = "";
 
-// ============ INITIALIZATION ============
-function startGame() {
-    playerName = prompt("Enter your name (min 3 letters):");
-    while (!playerName || playerName.length < 3) {
-        playerName = prompt("Invalid name. Minimum 3 letters:");
+  for (var i = 0; i < ROWS; i++) {
+    cells[i] = [];
+    for (var j = 0; j < COLS; j++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = i;
+      cell.dataset.col = j;
+      cell.dataset.state = 'hidden';
+      cell.oncontextmenu = function(e) {
+        e.preventDefault();
+        toggleFlag(this);
+      };
+      cell.onclick = function() {
+        handleCellClick(this);
+      };
+      grid.appendChild(cell);
+      cells[i][j] = cell;
     }
-
-    gameOver = false;
-    firstClickDone = false;
-    secondsPassed = 0;
-    safeCellsLeft = rows * cols - totalMines;
-    board = [];
-    flagsPlaced = 0;
-    remainingMines = totalMines;
-    updateMinesCounter();
-    resetStopwatch();
-    buildBoard();
+  }
+  placeMines();
 }
 
-// ============ BUILDING THE BOARD ============
-function buildBoard() {
-    boardContainer.innerHTML = "";
-    for (var i = 0; i < rows; i++) {
-        board[i] = [];
-        for (var j = 0; j < cols; j++) {
-            board[i][j] = {
-                mine: false,
-                revealed: false,
-                flagged: false,
-                number: 0
-            };
-
-            var cell = document.createElement("div");
-            cell.className = "cell";
-            cell.setAttribute("data-row", i);
-            cell.setAttribute("data-col", j);
-
-            cell.addEventListener("click", revealCell);
-            cell.addEventListener("contextmenu", toggleFlag);
-
-            boardContainer.appendChild(cell);
-        }
+function placeMines() {
+  var placed = 0;
+  while (placed < MINES) {
+    var row = Math.floor(Math.random() * ROWS);
+    var col = Math.floor(Math.random() * COLS);
+    if (!cells[row][col].dataset.mine) {
+      cells[row][col].dataset.mine = 'true';
+      mineLocations.push({ row: row, col: col });
+      placed++;
     }
+  }
 }
 
-// ============ PLACE MINES ============
-function placeMines(initialRow, initialCol) {
-    var placed = 0;
-    while (placed < totalMines) {
-        var r = Math.floor(Math.random() * rows);
-        var c = Math.floor(Math.random() * cols);
-
-        if (
-            !board[r][c].mine &&
-            (r !== initialRow || c !== initialCol)
-        ) {
-            board[r][c].mine = true;
-            placed++;
-        }
+function countAdjacentMines(row, col) {
+  var count = 0;
+  for (var i = Math.max(0, row - 1); i <= Math.min(ROWS - 1, row + 1); i++) {
+    for (var j = Math.max(0, col - 1); j <= Math.min(COLS - 1, col + 1); j++) {
+      if (cells[i][j].dataset.mine === 'true') count++;
     }
-
-    calculateNumbers();
+  }
+  return count;
 }
 
-// ============ CALCULATE NUMBERS ============
-function calculateNumbers() {
-    for (var i = 0; i < rows; i++) {
-        for (var j = 0; j < cols; j++) {
-            if (!board[i][j].mine) {
-                board[i][j].number = countAdjacentMines(i, j);
-            }
-        }
+function revealEmptyCells(row, col) {
+  for (var i = Math.max(0, row - 1); i <= Math.min(ROWS - 1, row + 1); i++) {
+    for (var j = Math.max(0, col - 1); j <= Math.min(COLS - 1, col + 1); j++) {
+      var cell = cells[i][j];
+      if (cell.dataset.state === 'hidden') {
+        var count = countAdjacentMines(i, j);
+        cell.textContent = count || '';
+        cell.dataset.state = 'revealed';
+        cell.classList.add('revealed');
+        revealedCells++;
+        if (count === 0) revealEmptyCells(i, j);
+      }
     }
+  }
 }
 
-function countAdjacentMines(r, c) {
-    var total = 0;
-    for (var i = r - 1; i <= r + 1; i++) {
-        for (var j = c - 1; j <= c + 1; j++) {
-            if (i >= 0 && i < rows && j >= 0 && j < cols) {
-                if (board[i][j].mine) {
-                    total++;
-                }
-            }
-        }
-    }
-    return total;
-}
+function handleCellClick(cell) {
+  if (gameOver || cell.dataset.state !== 'hidden') return;
 
-// ============ REVEAL CELL ============
-function revealCell(event) {
-    if (gameOver) return;
+  var row = parseInt(cell.dataset.row);
+  var col = parseInt(cell.dataset.col);
 
-    var row = parseInt(this.getAttribute("data-row"), 10);
-    var col = parseInt(this.getAttribute("data-col"), 10);
-    var cell = board[row][col];
-
-    if (!firstClickDone) {
-        placeMines(row, col);
-        startStopwatch();
-        firstClickDone = true;
-    }
-
-    if (cell.revealed || cell.flagged) return;
-
-    cell.revealed = true;
-    this.classList.add("revealed");
-
-    if (cell.mine) {
-        this.classList.add("mine");
-        endGame(false);
-    } else {
-        if (cell.number > 0) {
-            this.textContent = cell.number;
-        } else {
-            expandEmptyCells(row, col);
-        }
-
-        safeCellsLeft--;
-        if (safeCellsLeft === 0) {
-            endGame(true);
-        }
-    }
-}
-
-// ============ EXPAND EMPTY CELLS ============
-function expandEmptyCells(row, col) {
-    for (var i = row - 1; i <= row + 1; i++) {
-        for (var j = col - 1; j <= col + 1; j++) {
-            if (
-                i >= 0 && i < rows &&
-                j >= 0 && j < cols &&
-                !board[i][j].revealed &&
-                !board[i][j].mine
-            ) {
-                var cellElem = document.querySelector('[data-row="' + i + '"][data-col="' + j + '"]');
-                board[i][j].revealed = true;
-                cellElem.classList.add("revealed");
-
-                if (board[i][j].number > 0) {
-                    cellElem.textContent = board[i][j].number;
-                } else {
-                    expandEmptyCells(i, j);
-                }
-
-                safeCellsLeft--;
-            }
-        }
-    }
-}
-
-// ============ FLAGGING ============
-function toggleFlag(event) {
-    event.preventDefault();
-
-    if (gameOver) return;
-
-    var row = parseInt(this.getAttribute("data-row"), 10);
-    var col = parseInt(this.getAttribute("data-col"), 10);
-    var cell = board[row][col];
-
-    if (cell.revealed) return;
-
-    if (cell.flagged) {
-        cell.flagged = false;
-        this.classList.remove("flagged");
-        flagsPlaced--;
-    } else {
-        cell.flagged = true;
-        this.classList.add("flagged");
-        flagsPlaced++;
-    }
-
-    updateMinesCounter();
-}
-
-function updateMinesCounter() {
-    minesCounter.textContent = totalMines - flagsPlaced;
-}
-
-// ============ TIMER ============
-function startStopwatch() {
-    stopwatch.textContent = "0";
-    timer = setInterval(function () {
-        secondsPassed++;
-        stopwatch.textContent = secondsPassed;
-    }, 1000);
-}
-
-function resetStopwatch() {
-    clearInterval(timer);
-    stopwatch.textContent = "0";
-}
-
-// ============ GAME END ============
-function endGame(won) {
+  if (cell.dataset.mine === 'true') {
+    cell.textContent = '*';
+    cell.classList.add('mine');
+    audioExplosion.play();
+    revealMines();
+    showMessage('💥 Perdiste', true);
     gameOver = true;
-    clearInterval(timer);
-
-    if (won) {
-        showMessage("🎉 You won, " + playerName + "!");
-    } else {
-        showMines();
-        showMessage("💣 You lost, " + playerName + "!");
+  } else {
+    audioClick.play();
+    var count = countAdjacentMines(row, col);
+    cell.textContent = count || '';
+    cell.dataset.state = 'revealed';
+    cell.classList.add('revealed');
+    revealedCells++;
+    if (count === 0) revealEmptyCells(row, col);
+    if (revealedCells === ROWS * COLS - MINES) {
+      audioWin.play();
+      showMessage('🎉 Ganaste', false);
+      gameOver = true;
+      saveScore();
     }
+  }
 }
 
-function showMines() {
-    for (var i = 0; i < rows; i++) {
-        for (var j = 0; j < cols; j++) {
-            if (board[i][j].mine) {
-                var cell = document.querySelector('[data-row="' + i + '"][data-col="' + j + '"]');
-                cell.classList.add("mine");
-            }
-        }
-    }
+function toggleFlag(cell) {
+  if (cell.dataset.state === 'hidden') {
+    cell.textContent = '🚩';
+    cell.dataset.state = 'flagged';
+  } else if (cell.dataset.state === 'flagged') {
+    cell.textContent = '';
+    cell.dataset.state = 'hidden';
+  }
 }
 
-// ============ MODAL ============
-function showMessage(msg) {
-    modalContent.textContent = msg;
-    messageModal.style.display = "block";
+function revealMines() {
+  mineLocations.forEach(function(loc) {
+    var cell = cells[loc.row][loc.col];
+    cell.textContent = '*';
+    cell.classList.add('mine');
+  });
+  audioLose.play();
 }
 
-// ============ RESTART ============
-restartButton.addEventListener("click", function () {
-    messageModal.style.display = "none";
-    startGame();
-});
+function showMessage(msg, isError) {
+  var msgEl = document.getElementById('message');
+  msgEl.textContent = msg;
+  msgEl.style.color = isError ? 'red' : 'lime';
+}
 
-// ============ ON LOAD ============
-window.addEventListener("load", startGame);
+function resetGame() {
+  initializeGrid();
+}
+
+function saveScore() {
+  var player = prompt("Tu nombre:");
+  if (!player || player.length < 3) return;
+  var score = {
+    name: player,
+    date: new Date().toLocaleString(),
+    revealed: revealedCells
+  };
+  var scores = JSON.parse(localStorage.getItem("scores")) || [];
+  scores.push(score);
+  localStorage.setItem("scores", JSON.stringify(scores));
+}
+
+function showBombsTemporarily() {
+  mineLocations.forEach(function(loc) {
+    cells[loc.row][loc.col].classList.add("mine");
+  });
+  setTimeout(function () {
+    mineLocations.forEach(function(loc) {
+      if (cells[loc.row][loc.col].dataset.state !== 'revealed') {
+        cells[loc.row][loc.col].classList.remove("mine");
+        cells[loc.row][loc.col].textContent = "";
+      }
+    });
+  }, 1000);
+}
+
+initializeGrid();
