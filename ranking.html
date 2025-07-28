@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>🏆 Ranking - Buscaminas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>🏆 Ranking de Mejores Puntajes</h1>
+
+  <table id="ranking-table">
+    <thead>
+      <tr>
+        <th>Jugador</th>
+        <th>Dificultad</th>
+        <th>Tiempo (s)</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="ranking-body">
+      <!-- Se llena con JS -->
+    </tbody>
+  </table>
+
+  <button onclick="location.href='index.html'">🔙 Volver al juego</button>
+
+  <script>
+    function cargarRanking() {
+      var cuerpo = document.getElementById("ranking-body");
+      var datos = JSON.parse(localStorage.getItem("ranking")) || [];
+
+      // Ordenar por menor tiempo
+      datos.sort(function(a, b) {
+        return a.tiempo - b.tiempo;
+      });
+
+      datos.forEach(function(entry) {
+        var fila = document.createElement("tr");
+        fila.innerHTML = "<td>" + entry.nombre + "</td>" +
+                         "<td>" + entry.dificultad + "</td>" +
+                         "<td>" + entry.tiempo + "</td>" +
+                         "<td>" + entry.fecha + "</td>";
+        cuerpo.appendChild(fila);
+      });
+    }
+
+    cargarRanking();
+  </script>
+</body>
+</html>
