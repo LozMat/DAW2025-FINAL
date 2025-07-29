@@ -10,10 +10,10 @@ var cells = [];
 var mineLocations = [];
 var revealedCells = 0;
 var gameOver = false;
-var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav.mp3');
-var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav.mp3');
-var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav.mp3');
-var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav.mp3');
+var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav');
+var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav');
+var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
+var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
 
 function initializeGrid() {
   grid.innerHTML = "";
