@@ -20,7 +20,6 @@
 
     <button onclick="resetGame()">🔄 Reiniciar</button>
     <button id="ver-minas" onclick="mostrarMinasPorUnSegundo()">🔍 Ver Minas (1s)</button>
-    <button onclick="toggleTheme()">🌓 Tema</button>
     <button onclick="location.href='ranking.html'">🏆 Ver Ranking</button>
   </div>
 
@@ -33,6 +32,14 @@
 
   <div class="grid" id="grid"></div>
 
+  <!-- Botón para cambiar la música -->
+  <div id="secondary-controls">
+    <button id="next-track">⏭️ Siguiente Pista</button>
+    <button onclick="toggleTheme()">🌓 Tema</button>
+  </div>
+
+  <script src="script.js"></script>
+  <audio id="bg-audio"></audio>
   <audio id="audio-click" src="sounds/421415__jaszunio15__click_203.wav"></audio>
   <audio id="audio-win" src="sounds/615100__mlaudio__magic_game_win_success_2.wav"></audio>
   <audio id="audio-lose" src="sounds/253174__suntemple__retro-you-lose-sfx.wav"></audio>

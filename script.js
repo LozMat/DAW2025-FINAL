@@ -15,6 +15,49 @@ var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wa
 var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
 var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const bgTracks = [
+    "sounds/bg_music/1.mp3",
+    "sounds/bg_music/2.mp3",
+    "sounds/bg_music/3.mp3",
+    "sounds/bg_music/4.mp3",
+    "sounds/bg_music/5.mp3",
+    "sounds/bg_music/6.mp3"
+  ];
+
+  let currentTrackIndex = 0;
+  const bgAudio = document.getElementById("bg-audio");
+
+  // Configurar el audio de fondo
+  bgAudio.volume = 0.01; // Volumen bajo para la música de fondo
+  bgAudio.src = bgTracks[currentTrackIndex];
+
+  // Esperar interacción del usuario para reproducir
+  document.body.addEventListener("click", () => {
+    bgAudio.play().catch((error) => {
+      console.error("Error al reproducir el audio:", error);
+    });
+  }, { once: true });
+
+  // Reproducir la siguiente pista al terminar la actual
+  bgAudio.addEventListener("ended", () => {
+    currentTrackIndex = (currentTrackIndex + 1) % bgTracks.length; // Ciclar entre las pistas
+    bgAudio.src = bgTracks[currentTrackIndex];
+    bgAudio.play();
+  });
+
+  // Botón "Next" para cambiar a la siguiente pista
+  const nextTrackButton = document.getElementById("next-track");
+  nextTrackButton.addEventListener("click", () => {
+    currentTrackIndex = (currentTrackIndex + 1) % bgTracks.length; // Ciclar entre las pistas
+    bgAudio.src = bgTracks[currentTrackIndex];
+    bgAudio.play().catch((error) => {
+      console.error("Error al reproducir la siguiente pista:", error);
+    });
+  });
+});
+
 function initializeGrid() {
   grid.innerHTML = "";
   cells = [];
