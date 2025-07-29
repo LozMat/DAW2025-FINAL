@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #000;
+  color: #0ff;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  padding: 20px;
+}
+
+h1, h2, h3 {
+  text-shadow: 0 0 5px #0ff;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 40px);
+  gap: 4px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: #111;
+  border: 2px solid #0ff;
+  color: #0ff;
+  text-align: center;
+  line-height: 40px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 5px #0ff;
+  transition: all 0.2s ease-in-out;
+}
+
+.cell:hover {
+  background-color: #222;
+  box-shadow: 0 0 10px #f0f;
+}
+
+.cell.revealed {
+  background-color: #333;
+  color: #0f0;
+  border-color: #0f0;
+  box-shadow: 0 0 5px #0f0;
+  cursor: default;
+}
+
+.cell.mine {
+  background-color: #f00;
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 10px #f00;
+}
+
+.cell.flag {
+  background-color: #004;
+  color: #0ff;
+}
+
+#message {
+  color: #f0f;
+  font-size: 12px;
+  margin-top: 15px;
+  text-shadow: 0 0 5px #f0f;
+}
+
+button, select {
+  font-family: 'Press Start 2P', cursive;
+  padding: 8px 12px;
+  background-color: #111;
+  border: 2px solid #0ff;
+  color: #0ff;
+  text-shadow: 0 0 5px #0ff;
+  margin-top: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 5px #0ff;
+}
+
+button:hover, select:hover {
+  background-color: #222;
+  box-shadow: 0 0 10px #f0f;
+}
+
+#ranking-container {
+  margin-top: 30px;
+  color: #0ff;
+}
+
+.ranking-table {
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.ranking-table th,
+.ranking-table td {
+  border: 1px solid #0ff;
+  padding: 6px 10px;
+}
