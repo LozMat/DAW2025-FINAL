@@ -175,11 +175,23 @@ function revealMines() {
   });
   audioLose.play();
 }
-
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+}
 function showMessage(msg, isError) {
   var msgEl = document.getElementById('message');
   msgEl.textContent = msg;
   msgEl.style.color = isError ? 'red' : 'lime';
+  function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+
+  // Guardar el estado del tema en localStorage
+  if (document.body.classList.contains('light-mode')) {
+    localStorage.setItem('tema', 'claro');
+  } else {
+    localStorage.setItem('tema', 'oscuro');
+  }
+}
 }
 
 function resetGame() {
