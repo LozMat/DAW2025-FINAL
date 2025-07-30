@@ -1,4 +1,4 @@
-// script.js
+
 "use strict";
 
 var ROWS = 8;
@@ -9,13 +9,18 @@ var grid = document.getElementById('grid');
 var cells = [];
 var mineLocations = [];
 var revealedCells = 0;
+var pistaUsada = false;
+
 var gameOver = false;
+var totalToReveal = ROWS * COLS - MINES;
 var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav');
 var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav');
 var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
 var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
 let hintUsed;
 let toastTimeoutId = null;
+var timerInterval;
+var secondsElapsed = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
   const bgTracks = [
@@ -72,7 +77,11 @@ function initializeGrid() {
   revealedCells = 0;
   mineLocations = [];
   gameOver = false;
+  secondsElapsed = 0;
+  clearInterval(timerInterval);
+  startTimer();
   document.getElementById("message").textContent = "";
+  document.getElementById("minas-restantes").textContent = `🟦 Casillas restantes: ${totalToReveal}`;
 
   // Ajustar el diseño de la cuadrícula en CSS
   grid.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
@@ -143,6 +152,7 @@ function revealEmptyCells(row, col) {
         cell.dataset.state = 'revealed';
         cell.classList.add('revealed');
         revealedCells++;
+        updateRemainingCounter();
         if (count === 0) revealEmptyCells(i, j);
       }
     }
@@ -162,6 +172,7 @@ function handleCellClick(cell) {
     revealMines();
     showMessage('💥 Perdiste', true);
     gameOver = true;
+    clearInterval(timerInterval);
   } else {
     audioClick.play();
     var count = countAdjacentMines(row, col);
@@ -169,12 +180,13 @@ function handleCellClick(cell) {
     cell.dataset.state = 'revealed';
     cell.classList.add('revealed');
     revealedCells++;
+    updateRemainingCounter();
     if (count === 0) revealEmptyCells(row, col);
-    if (revealedCells === ROWS * COLS - MINES) {
+    if (revealedCells === totalToReveal) {
       audioWin.play();
       showMessage('🎉 Ganaste', false);
       gameOver = true;
-      saveScore();
+      clearInterval(timerInterval);
     }
   }
 }
@@ -197,11 +209,81 @@ function revealMines() {
   });
   audioLose.play();
 }
+function mostrarMinasPorUnSegundo() {
+  if (pistaUsada || gameOver) return; // ❌ No permitir usar más de una vez ni si el juego terminó
+
+  pistaUsada = true; // ✅ Marcar como ya usada
+
+  mineLocations.forEach(function(loc) {
+    var cell = cells[loc.row][loc.col];
+    if (cell.dataset.state !== 'revealed') {
+      cell.classList.add("mine");
+      cell.textContent = "*";
+    }
+  });
+
+  setTimeout(function () {
+    mineLocations.forEach(function(loc) {
+      var cell = cells[loc.row][loc.col];
+      if (cell.dataset.state !== 'revealed') {
+        cell.classList.remove("mine");
+        cell.textContent = "";
+      }
+    });
+  }, 1000);
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+  if (document.body.classList.contains('light-mode')) {
+    localStorage.setItem('tema', 'claro');
+  } else {
+    localStorage.setItem('tema', 'oscuro');
+  }
+}
+
+function updateRemainingCounter() {
+  var restantes = totalToReveal - revealedCells;
+  document.getElementById("minas-restantes").textContent = `🟦 Casillas restantes: ${restantes}`;
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsElapsed++;
+    document.getElementById("timer").textContent = `⏱ Tiempo: ${secondsElapsed}s`;
+  }, 1000);
+}
 
 function showMessage(msg, isError) {
   var msgEl = document.getElementById('message');
   msgEl.textContent = msg;
   msgEl.style.color = isError ? 'red' : 'lime';
+}
+function guardarPuntaje() {
+  const nombre = document.getElementById("nombreJugador").value.trim();
+  if (nombre.length < 3) {
+    alert("El nombre debe tener al menos 3 letras");
+    return;
+  }
+
+  const dificultad = document.getElementById("dificultad").value;
+  const tiempo = secondsElapsed;
+  const fecha = new Date().toLocaleString();
+
+  const nuevoRegistro = {
+    nombre,
+    dificultad,
+    tiempo,
+    fecha
+  };
+
+  const ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+  ranking.push(nuevoRegistro);
+  localStorage.setItem("ranking", JSON.stringify(ranking));
+
+  // Cerrar modal y redirigir
+  document.getElementById("modal").classList.add("hidden");
+  location.href = "ranking.html";
 }
 
 function resetGame() {
@@ -238,7 +320,11 @@ function showBombsTemporarily() {
   }
   hintUsed = true;
   mineLocations.forEach(function(loc) {
-    cells[loc.row][loc.col].classList.add("mine");
+    const cell = cells[loc.row][loc.col];
+    if (cell.dataset.state !== 'revealed') {
+      cell.classList.add("mine");
+      cell.textContent = "*";
+    }
   });
 
   // Limpiar timeout anterior si existe
@@ -246,14 +332,17 @@ function showBombsTemporarily() {
 
   toastTimeoutId = setTimeout(function () {
     mineLocations.forEach(function(loc) {
-      if (cells[loc.row][loc.col].dataset.state !== 'revealed') {
-        cells[loc.row][loc.col].classList.remove("mine");
-        cells[loc.row][loc.col].textContent = "";
+      const cell = cells[loc.row][loc.col];
+      if (cell.dataset.state !== 'revealed') {
+        cell.classList.remove("mine");
+        cell.textContent = "";
       }
     });
     showMessage("", false);
     toastTimeoutId = null;
   }, 1000);
+
+  minasMostradas = true;
 }
 
 function changeDifficulty(level) {

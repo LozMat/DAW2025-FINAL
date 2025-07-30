@@ -113,3 +113,81 @@ button:hover, select:hover {
   border: 1px solid #0ff;
   padding: 6px 10px;
 }
+/* Tema claro */
+body.light-mode {
+  background-color: #fff;
+  color: #000;
+}
+
+body.light-mode h1, 
+body.light-mode h2, 
+body.light-mode h3,
+body.light-mode #message {
+  text-shadow: none;
+  color: #333;
+}
+
+body.light-mode .cell {
+  background-color: #eee;
+  border: 2px solid #333;
+  color: #000;
+  box-shadow: none;
+}
+
+body.light-mode .cell:hover {
+  background-color: #ddd;
+  box-shadow: 0 0 5px #333;
+}
+
+body.light-mode .cell.revealed {
+  background-color: #ccc;
+  color: #060;
+  border-color: #060;
+}
+
+body.light-mode .cell.mine {
+  background-color: #f55;
+  color: #fff;
+  border-color: #000;
+}
+
+body.light-mode button,
+body.light-mode select {
+  background-color: #f0f0f0;
+  color: #000;
+  border-color: #000;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+body.light-mode button:hover,
+body.light-mode select:hover {
+  background-color: #e0e0e0;
+  box-shadow: 0 0 5px #aaa;
+}
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: #111;
+  padding: 20px;
+  border: 3px solid cyan;
+  font-family: 'Press Start 2P', monospace;
+  color: #0ff;
+  text-align: center;
+  width: 300px;
+}
+
+.hidden {
+  display: none;
+}

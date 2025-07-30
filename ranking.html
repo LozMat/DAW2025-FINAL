@@ -25,7 +25,10 @@
   </table>
 
   <button onclick="location.href='index.html'">🔙 Volver al juego</button>
+  <button onclick="toggleTheme()">🌓 Tema</button>
 
+
+  <!-- Script al final para cargar ranking y aplicar tema -->
   <script>
     function cargarRanking() {
       var cuerpo = document.getElementById("ranking-body");
@@ -46,7 +49,16 @@
       });
     }
 
+    // Ejecutar la función de ranking
     cargarRanking();
+
+    // Aplicar tema claro si está guardado
+    if (localStorage.getItem('tema') === 'claro') {
+      document.body.classList.add('light-mode');
+    }
+    
   </script>
+    <script src="script.js"></script>
+
 </body>
 </html>
