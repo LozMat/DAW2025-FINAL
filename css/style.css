@@ -162,9 +162,11 @@ body.light-mode select {
 
 body.light-mode button:hover,
 body.light-mode select:hover {
-  background-color: #e0e0e0;
-  box-shadow: 0 0 5px #aaa;
+  background-color: #dcdcdc;
+  box-shadow: 0 0 6px #666;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .modal {
   position: fixed;
   top: 0;
