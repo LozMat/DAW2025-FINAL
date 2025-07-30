@@ -14,7 +14,7 @@ var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav');
 var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav');
 var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
 var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
-
+let hintUsed;
 
 document.addEventListener("DOMContentLoaded", () => {
   const bgTracks = [
@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initializeGrid() {
+  hintUsed = false;
   grid.innerHTML = "";
   cells = [];
   revealedCells = 0;
@@ -199,7 +200,17 @@ function saveScore() {
   localStorage.setItem("scores", JSON.stringify(scores));
 }
 
+
+
 function showBombsTemporarily() {
+  if (hintUsed) {
+    showMessage("Ya utilizaste la pista.", true);
+    setTimeout(() => {
+      showMessage("", false);
+    }, 1750);
+    return;
+  }
+  hintUsed = true;
   mineLocations.forEach(function(loc) {
     cells[loc.row][loc.col].classList.add("mine");
   });
