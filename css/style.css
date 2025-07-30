@@ -182,6 +182,8 @@ body.light-mode select:hover {
   background-color: #111;
   padding: 20px;
   border: 3px solid cyan;
+  border-radius: 8px;
+  outline: 2px solid #0ff;
   font-family: 'Press Start 2P', monospace;
   color: #0ff;
   text-align: center;
