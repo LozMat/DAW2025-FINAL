@@ -15,6 +15,7 @@ var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wa
 var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
 var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
 let hintUsed;
+let toastTimeoutId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const bgTracks = [
@@ -33,18 +34,23 @@ document.addEventListener("DOMContentLoaded", () => {
   bgAudio.volume = 0.05; // Volumen bajo para la música de fondo
   bgAudio.src = bgTracks[currentTrackIndex];
 
+
+
   // Esperar interacción del usuario para reproducir
   document.body.addEventListener("click", () => {
     bgAudio.play().catch((error) => {
       console.error("Error al reproducir el audio:", error);
     });
+    showTrackToast(bgTracks[currentTrackIndex]);
   }, { once: true });
+  // Mostrar toast de la primera canción
 
   // Reproducir la siguiente pista al terminar la actual
   bgAudio.addEventListener("ended", () => {
     currentTrackIndex = (currentTrackIndex + 1) % bgTracks.length; // Ciclar entre las pistas
     bgAudio.src = bgTracks[currentTrackIndex];
     bgAudio.play();
+    showTrackToast(bgTracks[currentTrackIndex]);
   });
 
   // Botón "Next" para cambiar a la siguiente pista
@@ -55,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bgAudio.play().catch((error) => {
       console.error("Error al reproducir la siguiente pista:", error);
     });
+    showTrackToast(bgTracks[currentTrackIndex]);
   });
 });
 
@@ -219,8 +226,13 @@ function saveScore() {
 function showBombsTemporarily() {
   if (hintUsed) {
     showMessage("Ya utilizaste la pista.", true);
-    setTimeout(() => {
+
+    // Limpiar timeout anterior si existe
+    if (toastTimeoutId) clearTimeout(toastTimeoutId);
+
+    toastTimeoutId = setTimeout(() => {
       showMessage("", false);
+      toastTimeoutId = null;
     }, 1750);
     return;
   }
@@ -228,13 +240,19 @@ function showBombsTemporarily() {
   mineLocations.forEach(function(loc) {
     cells[loc.row][loc.col].classList.add("mine");
   });
-  setTimeout(function () {
+
+  // Limpiar timeout anterior si existe
+  if (toastTimeoutId) clearTimeout(toastTimeoutId);
+
+  toastTimeoutId = setTimeout(function () {
     mineLocations.forEach(function(loc) {
       if (cells[loc.row][loc.col].dataset.state !== 'revealed') {
         cells[loc.row][loc.col].classList.remove("mine");
         cells[loc.row][loc.col].textContent = "";
       }
     });
+    showMessage("", false);
+    toastTimeoutId = null;
   }, 1000);
 }
 
@@ -263,10 +281,48 @@ function changeDifficulty(level) {
   // Reiniciar el juego con la nueva configuración
   resetGame();
   const message = `Dificultad cambiada a: ${level.toUpperCase()}`;
-  showMessage(message, false); // Mostrar mensaje en el área principal
-  setTimeout(() => {
-    showMessage("", false); // Limpiar el mensaje después de 1.75 segundos
+  showMessage(message, false);
+
+  // Limpiar timeout anterior si existe
+  if (toastTimeoutId) clearTimeout(toastTimeoutId);
+
+  toastTimeoutId = setTimeout(() => {
+    showMessage("", false);
+    toastTimeoutId = null;
   }, 1750);
+}
+
+const trackNames = [
+  "Ghostbusters (8 Bit Remix Cover Version) [Tribute to Ray Parker, Jr.] - 8 Bit Universe",
+  "Star Wars Cantina Theme (8 Bit Remix Cover Version) - 8 Bit Universe",
+  "Thriller (8 Bit Remix Cover Version) [Tribute to Michael Jackson] - 8 Bit Universe",
+  "Stressed Out (8 Bit Remix Cover Version) [Tribute to Twenty One Pilots] - 8 Bit Universe",
+  "Star Wars Imperial March Theme (8 Bit Remix Cover Version) - 8 Bit Universe",
+  "Blue (Da Ba Dee) [8 Bit Tribute to Eiffel 65] - 8 Bit Universe"
+];
+
+function showTrackToast(trackPath) {
+  // Determinar el índice de la pista según el array bgTracks
+  const bgTracks = [
+    "sounds/bg_music/1.mp3",
+    "sounds/bg_music/2.mp3",
+    "sounds/bg_music/3.mp3",
+    "sounds/bg_music/4.mp3",
+    "sounds/bg_music/5.mp3",
+    "sounds/bg_music/6.mp3"
+  ];
+  const idx = bgTracks.indexOf(trackPath);
+  const name = trackNames[idx] || "Canción desconocida";
+  showMessage(`🎵 Sonando: ${name}`, false);
+
+  // Limpiar timeout anterior si existe
+  if (toastTimeoutId) clearTimeout(toastTimeoutId);
+
+  // Crear nuevo timeout
+  toastTimeoutId = setTimeout(() => {
+    showMessage("", false);
+    toastTimeoutId = null;
+  }, 5000);
 }
 
 initializeGrid();
