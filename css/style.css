@@ -27,9 +27,17 @@ h1, h2, h3 {
   margin: 20px auto;
 }
 
+#grid {
+  display: grid;
+  gap: 2px; /* Espaciado entre celdas */
+  width: 100%; /* Ajustar al ancho disponible */
+  max-width: 500px; /* Tamaño máximo para mantener proporción */
+  aspect-ratio: 1 / 1; /* Mantener un cuadrado */
+}
+
 .cell {
-  width: 40px;
-  height: 40px;
+  /* width: 40px;
+  height: 40px; */
   background-color: #111;
   border: 2px solid #0ff;
   color: #0ff;

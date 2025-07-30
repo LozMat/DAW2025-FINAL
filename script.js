@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgAudio = document.getElementById("bg-audio");
 
   // Configurar el audio de fondo
-  bgAudio.volume = 0.01; // Volumen bajo para la música de fondo
+  bgAudio.volume = 0.05; // Volumen bajo para la música de fondo
   bgAudio.src = bgTracks[currentTrackIndex];
 
   // Esperar interacción del usuario para reproducir
@@ -67,6 +67,10 @@ function initializeGrid() {
   gameOver = false;
   document.getElementById("message").textContent = "";
 
+  // Ajustar el diseño de la cuadrícula en CSS
+  grid.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
+  grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+
   for (var i = 0; i < ROWS; i++) {
     cells[i] = [];
     for (var j = 0; j < COLS; j++) {
@@ -87,6 +91,16 @@ function initializeGrid() {
     }
   }
   placeMines();
+
+  // Ajustar tamaño de celda dinámicamente
+  const gridSize = 500; // px, igual que tu max-width
+  const cellSize = Math.floor(gridSize / Math.max(ROWS, COLS));
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.style.width = cellSize + "px";
+    cell.style.height = cellSize + "px";
+    cell.style.lineHeight = cellSize + "px";
+    cell.style.fontSize = (cellSize * 0.4) + "px";
+  });
 }
 
 function placeMines() {
@@ -222,6 +236,37 @@ function showBombsTemporarily() {
       }
     });
   }, 1000);
+}
+
+function changeDifficulty(level) {
+  switch (level) {
+    case 'easy':
+      ROWS = 8;
+      COLS = 8;
+      MINES = 10;
+      break;
+    case 'medium':
+      ROWS = 12;
+      COLS = 12;
+      MINES = 25;
+      break;
+    case 'hard':
+      ROWS = 16;
+      COLS = 16;
+      MINES = 40;
+      break;
+    default:
+      console.error("Nivel de dificultad no válido:", level);
+      return;
+  }
+
+  // Reiniciar el juego con la nueva configuración
+  resetGame();
+  const message = `Dificultad cambiada a: ${level.toUpperCase()}`;
+  showMessage(message, false); // Mostrar mensaje en el área principal
+  setTimeout(() => {
+    showMessage("", false); // Limpiar el mensaje después de 1.75 segundos
+  }, 1750);
 }
 
 initializeGrid();

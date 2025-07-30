@@ -11,11 +11,11 @@
   <h1>💣 Buscaminas - DAW2025</h1>
 
   <div id="controls">
-    <label for="dificultad">Dificultad:</label>
-    <select id="dificultad" onchange="cambiarDificultad()">
-      <option value="facil">Fácil</option>
-      <option value="medio">Medio</option>
-      <option value="dificil">Difícil</option>
+    <label for="difficulty-selector">Dificultad:</label>
+    <select id="difficulty-selector" onchange="changeDifficulty(this.value)">
+      <option value="easy">Fácil</option>
+      <option value="medium">Medio</option>
+      <option value="hard">Difícil</option>
     </select>
 
     <button onclick="resetGame()">🔄 Reiniciar</button>
@@ -28,13 +28,12 @@
     <span id="minas-restantes">💣 Minas restantes: 10</span>
   </div>
 
-  <div id="message"></div>
-
   <div class="grid" id="grid"></div>
-
+  
+  <div id="message"></div>
   <!-- Botón para cambiar la música -->
   <div id="secondary-controls">
-    <button id="next-track">⏭️ Siguiente Pista</button>
+    <button id="next-track">⏭️ Siguiente canción</button>
     <button onclick="toggleTheme()">🌓 Tema</button>
   </div>
 
