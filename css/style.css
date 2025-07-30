@@ -21,10 +21,11 @@ h1, h2, h3 {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(8, 40px);
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
   gap: 4px;
   justify-content: center;
   margin: 20px auto;
+  max-width: 400px;
 }
 
 #grid {
