@@ -25,9 +25,8 @@
 
  <div id="status" style="margin-top: 20px;">
   <span id="timer">⏱ Tiempo: 0s</span> |
-  <span id="minas-restantes">💣 Minas: 10<span id="minas">54</span></span> 
-<span id="casillas-restantes"> Casillas restantes: <span id="casillas-restantes">54</span></span>
-
+  <span id="minas-restantes">💣 Minas: <span id="minas"></span></span> |
+  <span id="casillas-restantes">🟦 Casillas restantes: <span id="casillas"></span></span>
 </div>
 
   <div class="grid" id="grid"></div>
@@ -38,6 +37,14 @@
     <button id="next-track">⏭️ Siguiente canción</button>
     <button onclick="toggleTheme()">🌓 Tema</button>
   </div>
+
+  <div id="modal" class="hidden modal">
+  <form id="form-nombre" class="modal-content">
+    <label for="nombreJugador">¡Ganaste! Ingresa tu nombre:</label>
+    <input type="text" id="nombreJugador" maxlength="20" required autocomplete="off" style="font-size:1em;">
+    <button type="submit">Guardar en ranking</button>
+  </form>
+</div>
 
   <script src="script.js"></script>
   <audio id="bg-audio"></audio>
