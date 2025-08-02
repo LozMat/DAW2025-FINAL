@@ -1,4 +1,3 @@
-
 "use strict";
 
 var ROWS = 8;
@@ -306,19 +305,21 @@ function saveScore() {
 
 
 function showBombsTemporarily() {
-  if (hintUsed) {
-    showMessage("Ya utilizaste la pista.", true);
-
-    // Limpiar timeout anterior si existe
+  // Solo permitir si el juego está activo y no se usó la pista
+  if (gameOver || pistaUsada) {
+    // Mostrar toast si ya usó la pista
+    showMessage("Ya usaste tu pista.", true);
     if (toastTimeoutId) clearTimeout(toastTimeoutId);
-
     toastTimeoutId = setTimeout(() => {
       showMessage("", false);
       toastTimeoutId = null;
     }, 1750);
     return;
   }
-  hintUsed = true;
+
+  pistaUsada = true;
+
+  // Mostrar todas las minas no reveladas
   mineLocations.forEach(function(loc) {
     const cell = cells[loc.row][loc.col];
     if (cell.dataset.state !== 'revealed') {
@@ -327,10 +328,8 @@ function showBombsTemporarily() {
     }
   });
 
-  // Limpiar timeout anterior si existe
-  if (toastTimeoutId) clearTimeout(toastTimeoutId);
-
-  toastTimeoutId = setTimeout(function () {
+  // Ocultar después de 1 segundo
+  setTimeout(function () {
     mineLocations.forEach(function(loc) {
       const cell = cells[loc.row][loc.col];
       if (cell.dataset.state !== 'revealed') {
@@ -338,11 +337,7 @@ function showBombsTemporarily() {
         cell.textContent = "";
       }
     });
-    showMessage("", false);
-    toastTimeoutId = null;
   }, 1000);
-
-  minasMostradas = true;
 }
 
 function changeDifficulty(level) {
