@@ -80,7 +80,7 @@ function initializeGrid() {
   clearInterval(timerInterval);
   startTimer();
   document.getElementById("message").textContent = "";
-  document.getElementById("minas-restantes").textContent = `🟦 Casillas restantes: ${totalToReveal}`;
+  updateStatusCounters();
 
   // Ajustar el diseño de la cuadrícula en CSS
   grid.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
@@ -186,6 +186,7 @@ function handleCellClick(cell) {
       showMessage('🎉 Ganaste', false);
       gameOver = true;
       clearInterval(timerInterval);
+      mostrarModalGanador();
     }
   }
 }
@@ -242,8 +243,7 @@ function toggleTheme() {
 }
 
 function updateRemainingCounter() {
-  var restantes = totalToReveal - revealedCells;
-  document.getElementById("minas-restantes").textContent = `🟦 Casillas restantes: ${restantes}`;
+  updateStatusCounters();
 }
 
 function startTimer() {
@@ -258,14 +258,20 @@ function showMessage(msg, isError) {
   msgEl.textContent = msg;
   msgEl.style.color = isError ? 'red' : 'lime';
 }
-function guardarPuntaje() {
+function mostrarModalGanador() {
+  document.getElementById("modal").classList.remove("hidden");
+  document.getElementById("nombreJugador").focus();
+}
+
+function guardarPuntaje(e) {
+  if (e) e.preventDefault();
   const nombre = document.getElementById("nombreJugador").value.trim();
   if (nombre.length < 3) {
     alert("El nombre debe tener al menos 3 letras");
     return;
   }
 
-  const dificultad = document.getElementById("dificultad").value;
+  const dificultad = document.getElementById("difficulty-selector").value;
   const tiempo = secondsElapsed;
   const fecha = new Date().toLocaleString();
 
@@ -284,6 +290,12 @@ function guardarPuntaje() {
   document.getElementById("modal").classList.add("hidden");
   location.href = "ranking.html";
 }
+
+// Asociar el submit del form al guardarPuntaje
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("form-nombre");
+  if (form) form.onsubmit = guardarPuntaje;
+});
 
 function resetGame() {
   initializeGrid();
@@ -362,6 +374,9 @@ function changeDifficulty(level) {
       return;
   }
 
+  // Recalcular casillas a revelar según la dificultad
+  totalToReveal = ROWS * COLS - MINES;
+
   // Reiniciar el juego con la nueva configuración
   resetGame();
   const message = `Dificultad cambiada a: ${level.toUpperCase()}`;
@@ -409,4 +424,10 @@ function showTrackToast(trackPath) {
   }, 5000);
 }
 
+function updateStatusCounters() {
+  document.getElementById("minas").textContent = MINES;
+  document.getElementById("casillas").textContent = totalToReveal - revealedCells;
+}
+
+totalToReveal = ROWS * COLS - MINES;
 initializeGrid();
