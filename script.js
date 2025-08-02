@@ -75,12 +75,11 @@ function initializeGrid() {
   cells = [];
   revealedCells = 0;
   mineLocations = [];
-  gameOver = false; // <-- Asegura que el juego NO está terminado al iniciar/reiniciar
+  gameOver = false;
   secondsElapsed = 0;
   clearInterval(timerInterval);
   startTimer();
   document.getElementById("message").textContent = "";
-  document.getElementById("minas-restantes").textContent = `🟦 Casillas restantes: ${totalToReveal}`;
   updateStatusCounters();
 
   // Ajustar el diseño de la cuadrícula en CSS
@@ -171,7 +170,7 @@ function handleCellClick(cell) {
     audioExplosion.play();
     revealMines();
     showMessage('💥 Perdiste', true);
-    gameOver = true; // <-- El juego termina al perder
+    gameOver = true;
     clearInterval(timerInterval);
   } else {
     audioClick.play();
@@ -185,7 +184,7 @@ function handleCellClick(cell) {
     if (revealedCells === totalToReveal) {
       audioWin.play();
       showMessage('🎉 Ganaste', false);
-      gameOver = true; // <-- El juego termina al ganar
+      gameOver = true;
       clearInterval(timerInterval);
       mostrarModalGanador();
     }
@@ -299,7 +298,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function resetGame() {
-  gameOver = false; // <-- Asegura que el juego NO está terminado al reiniciar
   initializeGrid();
 }
 
