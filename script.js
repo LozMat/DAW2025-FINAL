@@ -101,6 +101,16 @@ function initializeGrid() {
       cell.onclick = function() {
         handleCellClick(this);
       };
+      cell.onauxclick = function(e) {
+        // Click medio (rueda del mouse)
+        if (e.button === 1) {
+          chordCell(this);
+        }
+      };
+      cell.ondblclick = function() {
+        // Doble click
+        chordCell(this);
+      };
       grid.appendChild(cell);
       cells[i][j] = cell;
     }
@@ -428,3 +438,31 @@ function updateStatusCounters() {
 
 totalToReveal = ROWS * COLS - MINES;
 initializeGrid();
+
+function chordCell(cell) {
+  if (cell.dataset.state !== 'revealed') return;
+  const row = parseInt(cell.dataset.row);
+  const col = parseInt(cell.dataset.col);
+  const cellNumber = parseInt(cell.textContent);
+  if (!cellNumber) return;
+
+  // Contar banderas alrededor
+  let flagCount = 0;
+  for (let i = Math.max(0, row - 1); i <= Math.min(ROWS - 1, row + 1); i++) {
+    for (let j = Math.max(0, col - 1); j <= Math.min(COLS - 1, col + 1); j++) {
+      if (cells[i][j].dataset.state === 'flagged') flagCount++;
+    }
+  }
+
+  // Si la cantidad de banderas es igual al número de la celda, revela las celdas ocultas alrededor
+  if (flagCount === cellNumber) {
+    for (let i = Math.max(0, row - 1); i <= Math.min(ROWS - 1, row + 1); i++) {
+      for (let j = Math.max(0, col - 1); j <= Math.min(COLS - 1, col + 1); j++) {
+        const neighbor = cells[i][j];
+        if (neighbor.dataset.state === 'hidden') {
+          handleCellClick(neighbor);
+        }
+      }
+    }
+  }
+}
