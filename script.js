@@ -105,7 +105,9 @@ function initializeGrid() {
       cells[i][j] = cell;
     }
   }
-  placeMines();
+
+  // NO colocar minas aquí
+
 
   // Ajustar tamaño de celda dinámicamente
   const gridSize = 500; // px, igual que tu max-width
@@ -116,14 +118,25 @@ function initializeGrid() {
     cell.style.lineHeight = cellSize + "px";
     cell.style.fontSize = (cellSize * 0.4) + "px";
   });
+
+  // Nueva bandera para saber si ya se colocaron minas
+  window.minesPlaced = false;
 }
 
-function placeMines() {
+function placeMinesSafe(safeRow, safeCol) {
+  // Calcula las posiciones seguras (la celda y sus adyacentes)
+  let safe = {};
+  for (let i = Math.max(0, safeRow - 1); i <= Math.min(ROWS - 1, safeRow + 1); i++) {
+    for (let j = Math.max(0, safeCol - 1); j <= Math.min(COLS - 1, safeCol + 1); j++) {
+      safe[i + "," + j] = true;
+    }
+  }
+
   var placed = 0;
   while (placed < MINES) {
     var row = Math.floor(Math.random() * ROWS);
     var col = Math.floor(Math.random() * COLS);
-    if (!cells[row][col].dataset.mine) {
+    if (!cells[row][col].dataset.mine && !safe[row + "," + col]) {
       cells[row][col].dataset.mine = 'true';
       mineLocations.push({ row: row, col: col });
       placed++;
@@ -163,6 +176,12 @@ function handleCellClick(cell) {
 
   var row = parseInt(cell.dataset.row);
   var col = parseInt(cell.dataset.col);
+
+  // Si es el primer click, colocar minas evitando la celda y sus adyacentes
+  if (!window.minesPlaced) {
+    placeMinesSafe(row, col);
+    window.minesPlaced = true;
+  }
 
   if (cell.dataset.mine === 'true') {
     cell.textContent = '*';
@@ -209,29 +228,7 @@ function revealMines() {
   });
   audioLose.play();
 }
-function mostrarMinasPorUnSegundo() {
-  if (pistaUsada || gameOver) return; // ❌ No permitir usar más de una vez ni si el juego terminó
 
-  pistaUsada = true; // ✅ Marcar como ya usada
-
-  mineLocations.forEach(function(loc) {
-    var cell = cells[loc.row][loc.col];
-    if (cell.dataset.state !== 'revealed') {
-      cell.classList.add("mine");
-      cell.textContent = "*";
-    }
-  });
-
-  setTimeout(function () {
-    mineLocations.forEach(function(loc) {
-      var cell = cells[loc.row][loc.col];
-      if (cell.dataset.state !== 'revealed') {
-        cell.classList.remove("mine");
-        cell.textContent = "";
-      }
-    });
-  }, 1000);
-}
 
 function toggleTheme() {
   document.body.classList.toggle('light-mode');
