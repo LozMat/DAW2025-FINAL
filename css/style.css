@@ -197,4 +197,26 @@ body.light-mode select:hover {
   display: none;
 }
 
+@media (max-width: 600px) {
+  #grid {
+    margin: 0 auto;
+    width: 95vw;
+    max-width: 95vw;
+    aspect-ratio: 1 / 1;
+  }
+
+  .cell {
+    border: 2px solid #0ff;
+    box-sizing: border-box;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  #controls, #status, #secondary-controls {
+    padding: 10px;
+    max-width: 100%;
+  }
+}
 
