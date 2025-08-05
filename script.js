@@ -8,7 +8,7 @@ var grid = document.getElementById('grid');
 var cells = [];
 var mineLocations = [];
 var revealedCells = 0;
-var pistaUsada = false;
+
 
 var gameOver = false;
 var totalToReveal = ROWS * COLS - MINES;
@@ -16,7 +16,7 @@ var audioClick = new Audio('sounds/421415__jaszunio15__click_203.wav');
 var audioExplosion = new Audio('sounds/478272__joao_janz__8-bit-explosion-1_3.wav');
 var audioWin = new Audio('sounds/615100__mlaudio__magic_game_win_success_2.wav');
 var audioLose = new Audio('sounds/253174__suntemple__retro-you-lose-sfx.wav');
-let hintUsed;
+let hintUsed = false;
 let toastTimeoutId = null;
 var timerInterval;
 var secondsElapsed = 0;
@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initializeGrid() {
   hintUsed = false;
+  
   grid.innerHTML = "";
   cells = [];
   revealedCells = 0;
@@ -324,8 +325,12 @@ function saveScore() {
 
 
 function showBombsTemporarily() {
+  console.log("Iniciando mostrar bombas temporalmente");
+  console.log("Variables:", gameOver, hintUsed);
+  
   // Solo permitir si el juego está activo y no se usó la pista
-  if (gameOver || pistaUsada) {
+  if (gameOver || hintUsed) {
+    console.log("Juego terminado o pista ya usada, no se puede mostrar bombas.");
     // Mostrar toast si ya usó la pista
     showMessage("Ya usaste tu pista.", true);
     if (toastTimeoutId) clearTimeout(toastTimeoutId);
@@ -335,18 +340,28 @@ function showBombsTemporarily() {
     }, 1750);
     return;
   }
-
-  pistaUsada = true;
-
+  if (mineLocations.length === 0) {
+    showMessage("Haz 1 click en una casilla para generar minas.", true);
+    if (toastTimeoutId) clearTimeout(toastTimeoutId);
+    toastTimeoutId = setTimeout(() => {
+      showMessage("", false);
+      toastTimeoutId = null;
+    }, 1750);
+    return;
+  }
+  hintUsed = true;
+  console.log("Pista utilizada:", hintUsed);
   // Mostrar todas las minas no reveladas
+  console.log("Ubicaciones de minas:", mineLocations);
   mineLocations.forEach(function(loc) {
+    console.log("Mostrando mina en:", loc);
     const cell = cells[loc.row][loc.col];
     if (cell.dataset.state !== 'revealed') {
       cell.classList.add("mine");
       cell.textContent = "*";
     }
   });
-
+  console.log("Bombas mostradas");
   // Ocultar después de 1 segundo
   setTimeout(function () {
     mineLocations.forEach(function(loc) {
@@ -357,6 +372,7 @@ function showBombsTemporarily() {
       }
     });
   }, 1000);
+  console.log("Bombas ocultadas");
 }
 
 function changeDifficulty(level) {
@@ -408,6 +424,10 @@ const trackNames = [
 ];
 
 function showTrackToast(trackPath) {
+  var msgEl = document.getElementById('message');
+  // Sean eternos los laureles... <3
+  if (msgEl.textContent.trim() !== "") return;
+
   // Determinar el índice de la pista según el array bgTracks
   const bgTracks = [
     "sounds/bg_music/1.mp3",
@@ -436,9 +456,6 @@ function updateStatusCounters() {
   document.getElementById("casillas").textContent = totalToReveal - revealedCells;
 }
 
-totalToReveal = ROWS * COLS - MINES;
-initializeGrid();
-
 function chordCell(cell) {
   if (cell.dataset.state !== 'revealed') return;
   const row = parseInt(cell.dataset.row);
@@ -466,3 +483,7 @@ function chordCell(cell) {
     }
   }
 }
+
+totalToReveal = ROWS * COLS - MINES;
+initializeGrid();
+
